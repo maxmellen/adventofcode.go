@@ -62,10 +62,7 @@ func FilterClaims(in <-chan Claim, out chan<- Claim) {
 func doFilterClaims(in <-chan Claim, out chan<- Claim, filter Claim) {
 	for c := range in {
 		if c.id == filter.id || !overlap(c, filter) {
-			// fmt.Printf("filter #%d: %v; c #%d: %v [passthrough]\n", filter.id, filter, c.id, c)
 			out <- c
-		} else {
-			// fmt.Printf("filter #%d: %v; c #%d: %v [filter]\n", filter.id, filter, c.id, c)
 		}
 	}
 }
