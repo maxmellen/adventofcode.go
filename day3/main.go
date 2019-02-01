@@ -16,11 +16,7 @@ func main() {
 	file := os.Stdin
 	parsedClaims := make(chan Claim)
 	go ParseClaims(file, parsedClaims)
-
-	intactClaims := make(chan Claim)
-	go FilterClaims(parsedClaims, intactClaims)
-
-	intactClaim := <-intactClaims
+	intactClaim := FilterClaims(parsedClaims)
 	fmt.Println(intactClaim.id)
 }
 
@@ -45,7 +41,7 @@ func ParseClaims(r io.Reader, out chan<- Claim) {
 	}
 }
 
-func FilterClaims(in <-chan Claim, out chan<- Claim) {
+func FilterClaims(in <-chan Claim) Claim {
 	entryPoint := make(chan Claim, 1)
 	ch1 := entryPoint
 
@@ -56,7 +52,7 @@ func FilterClaims(in <-chan Claim, out chan<- Claim) {
 		ch1 = ch2
 	}
 
-	out <- <-ch1
+	return <-ch1
 }
 
 func doFilterClaims(in <-chan Claim, out chan<- Claim, filter Claim) {
