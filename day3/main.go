@@ -46,7 +46,7 @@ func ParseClaims(r io.Reader, out chan<- Claim) {
 }
 
 func FilterClaims(in <-chan Claim, out chan<- Claim) {
-	entryPoint := make(chan Claim, 10000)
+	entryPoint := make(chan Claim, 1)
 	ch1 := entryPoint
 
 	for c := range in {
