@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-type Claim struct {
+type claim struct {
 	id   uint
 	x, y uint
 	w, h uint
@@ -14,15 +14,15 @@ type Claim struct {
 
 func main() {
 	file := os.Stdin
-	parsedClaims := make(chan Claim)
-	go ParseClaims(file, parsedClaims)
-	intactClaim := FilterClaims(parsedClaims)
+	parsedClaims := make(chan claim)
+	go parseClaims(file, parsedClaims)
+	intactClaim := filterClaims(parsedClaims)
 	fmt.Println(intactClaim.id)
 }
 
-func ParseClaims(r io.Reader, out chan<- Claim) {
+func parseClaims(r io.Reader, out chan<- claim) {
 	for {
-		c := Claim{}
+		c := claim{}
 
 		_, err := fmt.Fscanf(r, "#%d @ %d,%d: %dx%d\n",
 			&c.id, &c.x, &c.y, &c.w, &c.h)
@@ -41,13 +41,13 @@ func ParseClaims(r io.Reader, out chan<- Claim) {
 	}
 }
 
-func FilterClaims(in <-chan Claim) Claim {
-	entryPoint := make(chan Claim, 1)
+func filterClaims(in <-chan claim) claim {
+	entryPoint := make(chan claim, 1)
 	ch1 := entryPoint
 
 	for c := range in {
 		entryPoint <- c
-		ch2 := make(chan Claim)
+		ch2 := make(chan claim)
 		go doFilterClaims(ch1, ch2, c)
 		ch1 = ch2
 	}
@@ -55,7 +55,7 @@ func FilterClaims(in <-chan Claim) Claim {
 	return <-ch1
 }
 
-func doFilterClaims(in <-chan Claim, out chan<- Claim, filter Claim) {
+func doFilterClaims(in <-chan claim, out chan<- claim, filter claim) {
 	for c := range in {
 		if c.id == filter.id || !overlap(c, filter) {
 			out <- c
@@ -63,7 +63,7 @@ func doFilterClaims(in <-chan Claim, out chan<- Claim, filter Claim) {
 	}
 }
 
-func overlap(c1 Claim, c2 Claim) bool {
+func overlap(c1 claim, c2 claim) bool {
 	c1left := c1.x
 	c1right := c1.x + c1.w
 	c1top := c1.y
